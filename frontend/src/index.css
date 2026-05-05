@@ -314,7 +314,7 @@ header {
 }
 
 .ai-core-avatar.booting {
-  animation: ai-breathe 2s ease-in-out infinite, glitch-skew 3s infinite;
+  /* No longer used for the main boot screen, kept for fallback */
 }
 
 .ai-core-avatar.offline {
@@ -332,6 +332,47 @@ header {
   0% { transform: scale(1); filter: brightness(1); }
   50% { transform: scale(1.05); filter: brightness(1.2); }
   100% { transform: scale(1); filter: brightness(1); }
+}
+
+.ai-boot-container {
+  position: relative;
+  width: 700px;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 0 80px rgba(110, 0, 255, 0.4);
+  animation: ai-float 6s ease-in-out infinite;
+  border: 1px solid var(--accent-primary);
+  background: var(--bg-dark);
+}
+
+.ai-boot-image {
+  width: 100%;
+  height: auto;
+  display: block;
+  filter: contrast(1.1) brightness(1.1);
+}
+
+.wave-scanner {
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(0, 240, 255, 0.6), transparent);
+  mix-blend-mode: color-dodge;
+  animation: scan-wave 3s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes scan-wave {
+  0% { left: -100%; }
+  100% { left: 200%; }
+}
+
+@keyframes ai-float {
+  0% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-15px) scale(1.02); }
+  100% { transform: translateY(0) scale(1); }
 }
 
 @keyframes glitch-skew {

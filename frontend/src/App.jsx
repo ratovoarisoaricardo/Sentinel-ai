@@ -133,11 +133,14 @@ function App() {
   if (isBooting) {
     return (
       <div className="app-container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', background: '#000' }}>
-        <img src="/ai-core.png" alt="AI Core" className="ai-core-avatar booting" />
-        <h1 style={{ fontFamily: 'Share Tech Mono', color: 'var(--accent-primary)', letterSpacing: '4px', marginTop: '30px' }}>
-          INITIALIZING NEURAL NETWORK...
+        <div className="ai-boot-container">
+          <img src="/ai-core.png" alt="AI Core" className="ai-boot-image" />
+          <div className="wave-scanner" />
+        </div>
+        <h1 style={{ fontFamily: 'Share Tech Mono', color: 'var(--accent-primary)', letterSpacing: '8px', marginTop: '40px', fontSize: '28px', textShadow: '0 0 20px var(--accent-primary)' }}>
+          SYSTEM INITIALIZATION
         </h1>
-        <div className="progress-bar-container">
+        <div className="progress-bar-container" style={{ width: '400px', height: '6px' }}>
           <div className="progress-bar-fill booting-fill" />
         </div>
       </div>
@@ -147,8 +150,11 @@ function App() {
   if (!isSystemOnline) {
     return (
       <div className="app-container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', background: '#000', color: 'var(--accent-danger)' }}>
-        <img src="/ai-core.png" alt="AI Core" className="ai-core-avatar offline" />
-        <h1 style={{ fontFamily: 'Share Tech Mono', letterSpacing: '4px', marginTop: '30px' }}>SYSTEM OFFLINE</h1>
+        <div className="ai-boot-container" style={{ borderColor: 'var(--accent-danger)', boxShadow: '0 0 50px rgba(255, 0, 60, 0.2)' }}>
+          <img src="/ai-core.png" alt="AI Core" className="ai-boot-image" style={{ filter: 'grayscale(100%) brightness(0.6) sepia(1) hue-rotate(-50deg)' }} />
+          <div className="wave-scanner" style={{ background: 'linear-gradient(90deg, transparent, rgba(255, 0, 60, 0.4), transparent)' }} />
+        </div>
+        <h1 style={{ fontFamily: 'Share Tech Mono', letterSpacing: '8px', marginTop: '40px', fontSize: '28px' }}>SYSTEM OFFLINE</h1>
         <p style={{ color: 'var(--text-dim)', marginBottom: '30px' }}>Sentinel-AI core processes have been terminated.</p>
         <button 
           className="btn-cyber danger" 
