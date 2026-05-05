@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { io } from 'socket.io-client';
-import { Shield, AlertTriangle, Activity, Database, Settings, Terminal, ShieldAlert, User, Maximize, Minimize } from 'lucide-react';
+import { Shield, AlertTriangle, Activity, Database, Settings, Terminal, ShieldAlert, User, Maximize, Minimize, Power, Eye, EyeOff, Lock, VolumeX, Thermometer, Crosshair } from 'lucide-react';
 import CameraFeed from './components/CameraFeed';
 import AnalysisPanel from './components/AnalysisPanel';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -231,37 +231,14 @@ function App() {
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
             <button 
-              className={`btn-cyber ${isLockdown ? 'danger-active' : ''}`} 
-              onClick={toggleLockdown}
-            >
-              Lockdown
-            </button>
-            <button 
-              className={`btn-cyber ${isSilentMode ? 'active' : ''}`} 
-              onClick={toggleSilentMode}
-            >
-              Silent Mode
-            </button>
-            <button 
-              className={`btn-cyber ${isThermalView ? 'active' : ''}`} 
-              onClick={() => setIsThermalView(!isThermalView)}
-            >
-              Thermal View
-            </button>
-            <button 
-              className={`btn-cyber ${isMotionTracking ? 'active' : ''}`} 
-              onClick={() => setIsMotionTracking(!isMotionTracking)}
-            >
-              Motion Tracking
-            </button>
-            <button 
               className={`btn-cyber ${isSurveillanceActive ? 'active' : 'danger'}`} 
               onClick={() => {
                 setIsSurveillanceActive(!isSurveillanceActive);
                 addLog({ type: 'info', message: !isSurveillanceActive ? 'AI Surveillance Re-engaged' : 'AI Surveillance Paused' });
               }}
             >
-              {isSurveillanceActive ? 'AI Monitor: ON' : 'AI Monitor: OFF'}
+              {isSurveillanceActive ? <Eye size={16} /> : <EyeOff size={16} />}
+              {isSurveillanceActive ? 'AI: ON' : 'AI: OFF'}
             </button>
             <button 
               className="btn-cyber danger" 
@@ -270,7 +247,36 @@ function App() {
                 addLog({ type: 'threat', message: 'SYSTEM CORE SHUTDOWN INITIATED' });
               }}
             >
-              Shutdown System
+              <Power size={16} />
+              Shutdown
+            </button>
+            <button 
+              className={`btn-cyber ${isLockdown ? 'danger-active' : ''}`} 
+              onClick={toggleLockdown}
+            >
+              <Lock size={16} />
+              Lockdown
+            </button>
+            <button 
+              className={`btn-cyber ${isSilentMode ? 'active' : ''}`} 
+              onClick={toggleSilentMode}
+            >
+              <VolumeX size={16} />
+              Silent Mode
+            </button>
+            <button 
+              className={`btn-cyber ${isThermalView ? 'active' : ''}`} 
+              onClick={() => setIsThermalView(!isThermalView)}
+            >
+              <Thermometer size={16} />
+              Thermal View
+            </button>
+            <button 
+              className={`btn-cyber ${isMotionTracking ? 'active' : ''}`} 
+              onClick={() => setIsMotionTracking(!isMotionTracking)}
+            >
+              <Crosshair size={16} />
+              Motion Tracking
             </button>
           </div>
         </div>
