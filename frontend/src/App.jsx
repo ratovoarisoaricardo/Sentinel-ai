@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { io } from 'socket.io-client';
-import { Shield, AlertTriangle, Activity, Database, Settings, Terminal, ShieldAlert, User } from 'lucide-react';
+import { Shield, AlertTriangle, Activity, Database, Settings, Terminal, ShieldAlert, User, Maximize, Minimize } from 'lucide-react';
 import CameraFeed from './components/CameraFeed';
 import AnalysisPanel from './components/AnalysisPanel';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -21,8 +21,14 @@ function App() {
   const [isAnomaly, setIsAnomaly] = useState(false);
   const [aiAnalysis, setAiAnalysis] = useState(null);
   const [status, setStatus] = useState('SECURE');
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+
     socket.on('connect', () => {
       console.log('Connected to backend');
       addLog({ type: 'info', message: 'Core system synchronized with neural backend.' });
@@ -49,11 +55,24 @@ function App() {
     });
 
     return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
       socket.off('connect');
       socket.off('anomaly_detected');
       socket.off('ai_analysis');
     };
   }, []);
+
+  const toggleFullScreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(err => {
+        console.log(`Error attempting to enable fullscreen: ${err.message}`);
+      });
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      }
+    }
+  };
 
   const addLog = (log) => {
     setLogs(prev => [{
@@ -103,6 +122,9 @@ function App() {
             </div>
           </div>
 
+          <button className="btn-cyber" onClick={toggleFullScreen} title="Plein écran">
+            {isFullscreen ? <Minimize size={16} /> : <Maximize size={16} />}
+          </button>
           <button className="btn-cyber"><Settings size={16} /></button>
         </div>
       </header>
