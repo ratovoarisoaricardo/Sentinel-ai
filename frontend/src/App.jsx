@@ -202,7 +202,7 @@ function App() {
       <aside className="side-panel">
         <AnalysisPanel logs={logs} aiAnalysis={aiAnalysis} />
         
-        <div className="panel-card" style={{ flex: 1 }}>
+        <div className="panel-card" style={{ flexShrink: 0 }}>
           <div className="panel-title">
             <Terminal size={16} />
             System Control
