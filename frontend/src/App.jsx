@@ -180,10 +180,9 @@ function App() {
               setIsSurveillanceActive(!isSurveillanceActive);
               addLog({ type: 'info', message: !isSurveillanceActive ? 'AI Surveillance Re-engaged' : 'AI Surveillance Paused' });
             }}
-            title="AI Monitor"
+            title={isSurveillanceActive ? "AI Monitor: ON" : "AI Monitor: OFF"}
           >
             {isSurveillanceActive ? <Eye size={16} /> : <EyeOff size={16} />}
-            {isSurveillanceActive ? 'AI: ON' : 'AI: OFF'}
           </button>
           
           <button 
@@ -195,7 +194,6 @@ function App() {
             title="Shutdown System"
           >
             <Power size={16} />
-            SHUTDOWN
           </button>
 
           <button className="btn-cyber" onClick={toggleFullScreen} title="Plein écran">
