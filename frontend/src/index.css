@@ -370,9 +370,9 @@ header {
 }
 
 @keyframes ai-float {
-  0% { transform: translateY(0) scale(1); }
-  50% { transform: translateY(-15px) scale(1.02); }
-  100% { transform: translateY(0) scale(1); }
+  0% { transform: scale(1.05) translate(0, 0); }
+  50% { transform: scale(1.08) translate(0, -10px); }
+  100% { transform: scale(1.05) translate(0, 0); }
 }
 
 @keyframes glitch-skew {

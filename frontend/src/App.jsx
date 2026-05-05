@@ -130,46 +130,6 @@ function App() {
     socket.emit('trigger_anomaly', { image });
   };
 
-  if (isBooting) {
-    return (
-      <div className="app-container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', background: '#000' }}>
-        <div className="ai-boot-container">
-          <img src="/ai-core.png" alt="AI Core" className="ai-boot-image" />
-          <div className="wave-scanner" />
-        </div>
-        <h1 style={{ fontFamily: 'Share Tech Mono', color: 'var(--accent-primary)', letterSpacing: '8px', marginTop: '40px', fontSize: '28px', textShadow: '0 0 20px var(--accent-primary)' }}>
-          SYSTEM INITIALIZATION
-        </h1>
-        <div className="progress-bar-container" style={{ width: '400px', height: '6px' }}>
-          <div className="progress-bar-fill booting-fill" />
-        </div>
-      </div>
-    );
-  }
-
-  if (!isSystemOnline) {
-    return (
-      <div className="app-container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', background: '#000', color: 'var(--accent-danger)' }}>
-        <div className="ai-boot-container" style={{ borderColor: 'var(--accent-danger)', boxShadow: '0 0 50px rgba(255, 0, 60, 0.2)' }}>
-          <img src="/ai-core.png" alt="AI Core" className="ai-boot-image" style={{ filter: 'grayscale(100%) brightness(0.6) sepia(1) hue-rotate(-50deg)' }} />
-          <div className="wave-scanner" style={{ background: 'linear-gradient(90deg, transparent, rgba(255, 0, 60, 0.4), transparent)' }} />
-        </div>
-        <h1 style={{ fontFamily: 'Share Tech Mono', letterSpacing: '8px', marginTop: '40px', fontSize: '28px' }}>SYSTEM OFFLINE</h1>
-        <p style={{ color: 'var(--text-dim)', marginBottom: '30px' }}>Sentinel-AI core processes have been terminated.</p>
-        <button 
-          className="btn-cyber danger" 
-          onClick={() => {
-            setIsSystemOnline(true);
-            setIsBooting(true);
-            setLogs([]);
-          }}
-        >
-          REBOOT CORE SYSTEM
-        </button>
-      </div>
-    );
-  }
-
   return (
     <div className={`app-container ${isAnomaly ? 'alert-active' : ''} ${isLockdown ? 'lockdown-active' : ''}`}>
       <header>
@@ -315,6 +275,60 @@ function App() {
       </aside>
 
       <AnimatePresence>
+        {isBooting && (
+          <motion.div 
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0, filter: 'brightness(2)' }}
+            transition={{ duration: 1, ease: 'easeOut' }}
+            style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: '#000', zIndex: 9999, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}
+          >
+            <div className="ai-boot-container" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none', borderRadius: 0 }}>
+              <img src="/ai-core.png" alt="AI Core" className="ai-boot-image" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              <div className="wave-scanner" style={{ zIndex: 2 }} />
+            </div>
+            
+            <div style={{ position: 'relative', zIndex: 10, display: 'flex', flexDirection: 'column', alignItems: 'center', background: 'rgba(0,0,0,0.5)', padding: '40px', borderRadius: '20px', backdropFilter: 'blur(10px)', border: '1px solid rgba(191,0,255,0.2)' }}>
+              <h1 style={{ fontFamily: 'Share Tech Mono', color: 'var(--accent-primary)', letterSpacing: '8px', fontSize: '36px', textShadow: '0 0 30px #000, 0 0 10px var(--accent-primary)', textAlign: 'center' }}>
+                SYSTEM INITIALIZATION
+              </h1>
+              <div className="progress-bar-container" style={{ width: '500px', height: '8px', marginTop: '30px', boxShadow: '0 0 20px #000', background: 'rgba(0,0,0,0.8)' }}>
+                <div className="progress-bar-fill booting-fill" />
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {!isSystemOnline && !isBooting && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: '#000', zIndex: 9998, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}
+          >
+            <div className="ai-boot-container" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none', borderRadius: 0 }}>
+              <img src="/ai-core.png" alt="AI Core" className="ai-boot-image" style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'grayscale(100%) brightness(0.4) sepia(1) hue-rotate(-50deg)' }} />
+              <div className="wave-scanner" style={{ background: 'linear-gradient(90deg, transparent, rgba(255, 0, 60, 0.4), transparent)', zIndex: 2 }} />
+            </div>
+            
+            <div style={{ position: 'relative', zIndex: 10, display: 'flex', flexDirection: 'column', alignItems: 'center', background: 'rgba(0,0,0,0.7)', padding: '50px', borderRadius: '20px', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,0,60,0.3)' }}>
+              <h1 style={{ fontFamily: 'Share Tech Mono', color: 'var(--accent-danger)', letterSpacing: '8px', fontSize: '36px', textShadow: '0 0 30px #000, 0 0 10px var(--accent-danger)' }}>
+                SYSTEM OFFLINE
+              </h1>
+              <p style={{ color: 'var(--text-dim)', marginBottom: '40px', fontSize: '16px' }}>Sentinel-AI core processes have been terminated.</p>
+              <button 
+                className="btn-cyber danger" 
+                style={{ padding: '15px 30px', fontSize: '16px' }}
+                onClick={() => {
+                  setIsSystemOnline(true);
+                  setIsBooting(true);
+                  setLogs([]);
+                }}
+              >
+                <Power size={20} /> REBOOT CORE SYSTEM
+              </button>
+            </div>
+          </motion.div>
+        )}
+
         {isSettingsOpen && (
           <motion.div 
             className="modal-overlay"
