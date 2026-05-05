@@ -1,0 +1,11 @@
+flask
+flask-socketio
+flask-cors
+opencv-python
+mediapipe
+google-generativeai
+python-dotenv
+Pillow
+requests
+gunicorn
+eventlet
