@@ -32,6 +32,7 @@ function App() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isSurveillanceActive, setIsSurveillanceActive] = useState(true);
   const [isSystemOnline, setIsSystemOnline] = useState(true);
+  const [isBooting, setIsBooting] = useState(true);
 
   const addLog = (log) => {
     setLogs(prev => [{
@@ -40,6 +41,13 @@ function App() {
       ...log
     }, ...prev].slice(0, 50));
   };
+
+  useEffect(() => {
+    if (isBooting) {
+      const timer = setTimeout(() => setIsBooting(false), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [isBooting]);
 
   useEffect(() => {
     const handleFullscreenChange = () => {
@@ -122,16 +130,31 @@ function App() {
     socket.emit('trigger_anomaly', { image });
   };
 
+  if (isBooting) {
+    return (
+      <div className="app-container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', background: '#000' }}>
+        <img src="/ai-core.png" alt="AI Core" className="ai-core-avatar booting" />
+        <h1 style={{ fontFamily: 'Share Tech Mono', color: 'var(--accent-primary)', letterSpacing: '4px', marginTop: '30px' }}>
+          INITIALIZING NEURAL NETWORK...
+        </h1>
+        <div className="progress-bar-container">
+          <div className="progress-bar-fill booting-fill" />
+        </div>
+      </div>
+    );
+  }
+
   if (!isSystemOnline) {
     return (
       <div className="app-container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', background: '#000', color: 'var(--accent-danger)' }}>
-        <ShieldAlert size={80} style={{ opacity: 0.5, marginBottom: '20px' }} />
-        <h1 style={{ fontFamily: 'Share Tech Mono', letterSpacing: '4px' }}>SYSTEM OFFLINE</h1>
+        <img src="/ai-core.png" alt="AI Core" className="ai-core-avatar offline" />
+        <h1 style={{ fontFamily: 'Share Tech Mono', letterSpacing: '4px', marginTop: '30px' }}>SYSTEM OFFLINE</h1>
         <p style={{ color: 'var(--text-dim)', marginBottom: '30px' }}>Sentinel-AI core processes have been terminated.</p>
         <button 
-          className="btn-cyber" 
+          className="btn-cyber danger" 
           onClick={() => {
             setIsSystemOnline(true);
+            setIsBooting(true);
             setLogs([]);
           }}
         >
@@ -159,17 +182,10 @@ function App() {
           <div className="profile-container">
             <div className="avatar-wrapper">
               <img 
-                src="/avatar.png" 
+                src="/ai-core.png" 
                 alt="AI Core" 
-                className="avatar-image" 
-                onError={(e) => { 
-                  e.target.style.display='none'; 
-                  e.target.nextSibling.style.display='flex'; 
-                }} 
+                className="avatar-image ai-breathing" 
               />
-              <div className="avatar-fallback" style={{display: 'none', width: '100%', height: '100%', backgroundColor: 'var(--bg-dark)', alignItems: 'center', justifyContent: 'center', borderRadius: '50%'}}>
-                 <User size={20} color="var(--accent-primary)" />
-              </div>
             </div>
             <div className="profile-info">
               <span className="profile-name">SYS-CORE</span>

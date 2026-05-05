@@ -304,6 +304,70 @@ header {
   100% { transform: translateY(50%); }
 }
 
+.ai-core-avatar {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--accent-primary);
+  box-shadow: 0 0 30px var(--accent-primary);
+}
+
+.ai-core-avatar.booting {
+  animation: ai-breathe 2s ease-in-out infinite, glitch-skew 3s infinite;
+}
+
+.ai-core-avatar.offline {
+  border-color: var(--accent-danger);
+  box-shadow: 0 0 10px var(--accent-danger);
+  opacity: 0.5;
+  filter: grayscale(100%) brightness(0.5) sepia(1) hue-rotate(-50deg);
+}
+
+.ai-breathing {
+  animation: ai-breathe 3s ease-in-out infinite;
+}
+
+@keyframes ai-breathe {
+  0% { transform: scale(1); filter: brightness(1); }
+  50% { transform: scale(1.05); filter: brightness(1.2); }
+  100% { transform: scale(1); filter: brightness(1); }
+}
+
+@keyframes glitch-skew {
+  0% { transform: skew(0deg); }
+  10% { transform: skew(-2deg); }
+  20% { transform: skew(0deg); }
+  90% { transform: skew(0deg); }
+  95% { transform: skew(3deg); }
+  100% { transform: skew(0deg); }
+}
+
+.progress-bar-container {
+  width: 300px;
+  height: 4px;
+  background: rgba(191, 0, 255, 0.2);
+  margin-top: 20px;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: var(--accent-primary);
+  width: 0%;
+}
+
+.booting-fill {
+  animation: progress 3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes progress {
+  0% { width: 0%; }
+  50% { width: 70%; }
+  100% { width: 100%; }
+}
+
 .profile-info {
   display: flex;
   flex-direction: column;
