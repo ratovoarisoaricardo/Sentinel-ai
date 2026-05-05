@@ -104,7 +104,7 @@ const CameraFeed = ({ onAnomaly, isAnomaly, isThermalView, isMotionTracking, isS
 
   return (
     <div style={{ position: 'relative', width: '100%', height: '100%', backgroundColor: '#000' }}>
-      <video ref={videoRef} autoPlay playsInline muted style={{ display: 'none' }} />
+      <video ref={videoRef} autoPlay playsInline muted style={{ position: 'fixed', top: '-9999px', left: '-9999px', width: 1, height: 1, opacity: 0, pointerEvents: 'none' }} />
       <canvas 
         ref={canvasRef} 
         width={1280} 
