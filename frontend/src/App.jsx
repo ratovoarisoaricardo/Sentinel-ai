@@ -174,10 +174,34 @@ function App() {
             </div>
           </div>
 
+          <button 
+            className={`btn-cyber ${isSurveillanceActive ? 'active' : 'danger'}`} 
+            onClick={() => {
+              setIsSurveillanceActive(!isSurveillanceActive);
+              addLog({ type: 'info', message: !isSurveillanceActive ? 'AI Surveillance Re-engaged' : 'AI Surveillance Paused' });
+            }}
+            title="AI Monitor"
+          >
+            {isSurveillanceActive ? <Eye size={16} /> : <EyeOff size={16} />}
+            {isSurveillanceActive ? 'AI: ON' : 'AI: OFF'}
+          </button>
+          
+          <button 
+            className="btn-cyber danger-active" 
+            onClick={() => {
+              setIsSystemOnline(false);
+              addLog({ type: 'threat', message: 'SYSTEM CORE SHUTDOWN INITIATED' });
+            }}
+            title="Shutdown System"
+          >
+            <Power size={16} />
+            SHUTDOWN
+          </button>
+
           <button className="btn-cyber" onClick={toggleFullScreen} title="Plein écran">
             {isFullscreen ? <Minimize size={16} /> : <Maximize size={16} />}
           </button>
-          <button className="btn-cyber" onClick={() => setIsSettingsOpen(true)}><Settings size={16} /></button>
+          <button className="btn-cyber" onClick={() => setIsSettingsOpen(true)} title="Settings"><Settings size={16} /></button>
         </div>
       </header>
 
@@ -230,26 +254,6 @@ function App() {
             System Control
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-            <button 
-              className={`btn-cyber ${isSurveillanceActive ? 'active' : 'danger'}`} 
-              onClick={() => {
-                setIsSurveillanceActive(!isSurveillanceActive);
-                addLog({ type: 'info', message: !isSurveillanceActive ? 'AI Surveillance Re-engaged' : 'AI Surveillance Paused' });
-              }}
-            >
-              {isSurveillanceActive ? <Eye size={16} /> : <EyeOff size={16} />}
-              {isSurveillanceActive ? 'AI: ON' : 'AI: OFF'}
-            </button>
-            <button 
-              className="btn-cyber danger" 
-              onClick={() => {
-                setIsSystemOnline(false);
-                addLog({ type: 'threat', message: 'SYSTEM CORE SHUTDOWN INITIATED' });
-              }}
-            >
-              <Power size={16} />
-              Shutdown
-            </button>
             <button 
               className={`btn-cyber ${isLockdown ? 'danger-active' : ''}`} 
               onClick={toggleLockdown}
