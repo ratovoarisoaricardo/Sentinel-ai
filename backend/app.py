@@ -9,7 +9,8 @@ from flask import Flask, request
 from flask_socketio import SocketIO, emit
 from flask_cors import CORS
 from dotenv import load_dotenv
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 from PIL import Image
 
 load_dotenv()
@@ -26,13 +27,11 @@ TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 
 if GEMINI_API_KEY:
-    genai.configure(api_key=GEMINI_API_KEY)
-    # Use the exact gemini-1.5-flash model
-    model_name = 'gemini-1.5-flash'
-    model = genai.GenerativeModel(model_name)
+    client = genai.Client(api_key=GEMINI_API_KEY)
+    MODEL_ID = 'gemini-2.0-flash'
 else:
     print("Warning: GEMINI_API_KEY not found in environment variables.")
-    model = None
+    client = None
 
 def send_telegram_alert(message, image_bytes=None):
     """Sends an alert to a Telegram chat"""
@@ -81,16 +80,28 @@ def handle_trigger_anomaly(data):
 
 def run_ai_analysis(image_bytes, timestamp):
     """Run Gemini Vision analysis on the captured frame"""
-    if not model:
+    if not client:
         analysis = "[Simulated AI Analysis]: High threat detected. Individual in aggressive posture. Immediate intervention suggested."
         socketio.emit('ai_analysis', {'timestamp': timestamp, 'analysis': analysis})
         return
 
     try:
         img = Image.open(io.BytesIO(image_bytes))
+        
+        # Convert PIL image to bytes for the new SDK
+        img_byte_arr = io.BytesIO()
+        img.save(img_byte_arr, format='JPEG')
+        img_bytes = img_byte_arr.getvalue()
+        
         prompt = "This is a security camera snapshot. Analyze the scene for threats, suspicious behavior, or anomalies. Be concise. If there is a clear threat, start with [HIGH THREAT]."
         
-        response = model.generate_content([prompt, img])
+        response = client.models.generate_content(
+            model=MODEL_ID,
+            contents=[
+                types.Part.from_bytes(data=img_bytes, mime_type='image/jpeg'),
+                prompt
+            ]
+        )
 
         analysis = response.text
         
@@ -103,7 +114,6 @@ def run_ai_analysis(image_bytes, timestamp):
     except Exception as e:
         print(f"AI Analysis error: {e}")
         socketio.emit('ai_analysis', {'timestamp': timestamp, 'analysis': f"Error during analysis: {str(e)}"})
-
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     print(f"SentinelAI Backend starting on port {port}...")
