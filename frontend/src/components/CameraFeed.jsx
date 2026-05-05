@@ -1,11 +1,8 @@
 import React, { useEffect, useRef } from 'react';
-import * as mpPose from '@mediapipe/pose';
-import * as mpCamera from '@mediapipe/camera_utils';
-import * as mpDrawing from '@mediapipe/drawing_utils';
-
-const { Pose } = mpPose;
-const { Camera } = mpCamera;
-const { drawConnectors, drawLandmarks } = mpDrawing;
+const Pose = window.Pose;
+const Camera = window.Camera;
+const drawConnectors = window.drawConnectors;
+const drawLandmarks = window.drawLandmarks;
 
 const CameraFeed = ({ onFrame, isAnomaly }) => {
   const videoRef = useRef(null);
@@ -79,7 +76,7 @@ const CameraFeed = ({ onFrame, isAnomaly }) => {
 
   return (
     <div style={{ position: 'relative', width: '100%', height: '100%', backgroundColor: '#000' }}>
-      <video ref={videoRef} style={{ display: 'none' }} />
+      <video ref={videoRef} autoPlay playsInline muted style={{ display: 'none' }} />
       <canvas ref={canvasRef} width={1280} height={720} style={{ width: '100%', height: '100%', objectFit: 'cover', transform: 'scaleX(-1)' }} />
       <div style={{ position: 'absolute', bottom: 20, left: 20, background: 'rgba(0,0,0,0.5)', padding: '5px 10px', fontSize: '10px', color: '#8b949e', fontFamily: 'Share Tech Mono' }}>
         LATENCY: 42ms | FPS: 30 | CORE: SENTINEL-X
