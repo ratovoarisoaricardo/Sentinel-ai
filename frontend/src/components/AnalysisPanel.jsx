@@ -39,7 +39,7 @@ const AnalysisPanel = ({ logs, aiAnalysis }) => {
           <Database size={16} />
           System Logs
         </div>
-        <div className="logs-container" style={{ flex: 1, overflowY: 'auto' }}>
+        <div className="logs-container" style={{ flex: 1, overflowY: 'auto', minHeight: '150px', maxHeight: '300px' }}>
           {logs.map(log => (
             <div key={log.id} className={`log-item ${log.type === 'threat' ? 'threat' : ''}`}>
               <div className="timestamp">[{log.timestamp}] {log.type.toUpperCase()}</div>

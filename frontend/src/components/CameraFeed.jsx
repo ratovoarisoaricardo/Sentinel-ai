@@ -96,6 +96,9 @@ const CameraFeed = ({ onAnomaly, isAnomaly, isThermalView, isMotionTracking, isS
     return () => {
       camera.stop();
       pose.close();
+      if (videoRef.current && videoRef.current.srcObject) {
+        videoRef.current.srcObject.getTracks().forEach(track => track.stop());
+      }
     };
   }, []); // Empty dependency array is critical to avoid restarting the camera
 
