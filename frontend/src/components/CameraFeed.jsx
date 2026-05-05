@@ -4,7 +4,7 @@ const Camera = window.Camera;
 const drawConnectors = window.drawConnectors;
 const drawLandmarks = window.drawLandmarks;
 
-const CameraFeed = ({ onFrame, isAnomaly }) => {
+const CameraFeed = ({ onFrame, isAnomaly, isThermalView, isMotionTracking }) => {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const lastEmitTime = useRef(0);
@@ -29,8 +29,8 @@ const CameraFeed = ({ onFrame, isAnomaly }) => {
       // Draw video frame
       canvasCtx.drawImage(results.image, 0, 0, canvasRef.current.width, canvasRef.current.height);
 
-      // Draw skeleton
-      if (results.poseLandmarks) {
+      // Draw skeleton if motion tracking is enabled
+      if (isMotionTracking && results.poseLandmarks) {
         drawConnectors(canvasCtx, results.poseLandmarks, [
           [11, 12], [11, 13], [13, 15], [12, 14], [14, 16], [11, 23], [12, 24], [23, 24]
         ], { color: '#bf00ff', lineWidth: 2 });
@@ -77,7 +77,19 @@ const CameraFeed = ({ onFrame, isAnomaly }) => {
   return (
     <div style={{ position: 'relative', width: '100%', height: '100%', backgroundColor: '#000' }}>
       <video ref={videoRef} autoPlay playsInline muted style={{ display: 'none' }} />
-      <canvas ref={canvasRef} width={1280} height={720} style={{ width: '100%', height: '100%', objectFit: 'cover', transform: 'scaleX(-1)' }} />
+      <canvas 
+        ref={canvasRef} 
+        width={1280} 
+        height={720} 
+        style={{ 
+          width: '100%', 
+          height: '100%', 
+          objectFit: 'cover', 
+          transform: 'scaleX(-1)',
+          filter: isThermalView ? 'hue-rotate(180deg) saturate(300%) contrast(150%) brightness(1.2)' : 'none',
+          transition: 'filter 0.5s ease'
+        }} 
+      />
       <div style={{ position: 'absolute', bottom: 20, left: 20, background: 'rgba(0,0,0,0.5)', padding: '5px 10px', fontSize: '10px', color: '#8b949e', fontFamily: 'Share Tech Mono' }}>
         LATENCY: 42ms | FPS: 30 | CORE: SENTINEL-X
       </div>

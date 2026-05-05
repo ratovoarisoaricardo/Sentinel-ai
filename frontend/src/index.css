@@ -308,3 +308,124 @@ header {
   text-transform: uppercase;
   letter-spacing: 1px;
 }
+
+/* Active Button State */
+.btn-cyber.active {
+  background: var(--accent-primary);
+  color: var(--bg-dark);
+  box-shadow: 0 0 15px var(--accent-primary);
+}
+
+.btn-cyber.danger-active {
+  background: var(--accent-danger);
+  color: #fff;
+  border-color: var(--accent-danger);
+  box-shadow: 0 0 15px var(--accent-danger);
+  animation: pulse-red-btn 1s infinite;
+}
+
+@keyframes pulse-red-btn {
+  0% { box-shadow: 0 0 15px var(--accent-danger); }
+  50% { box-shadow: 0 0 30px var(--accent-danger); }
+  100% { box-shadow: 0 0 15px var(--accent-danger); }
+}
+
+/* Lockdown Mode Overrides */
+.app-container.lockdown-active {
+  --accent-primary: #ff003c;
+  --accent-secondary: #ff3300;
+  --border-glow: rgba(255, 0, 60, 0.6);
+  --glass: rgba(255, 0, 60, 0.1);
+  background-image: 
+    radial-gradient(circle at 50% 50%, rgba(255, 0, 60, 0.2) 0%, transparent 80%),
+    linear-gradient(rgba(255, 0, 60, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 0, 60, 0.05) 1px, transparent 1px);
+}
+
+.app-container.lockdown-active header,
+.app-container.lockdown-active .panel-card,
+.app-container.lockdown-active .main-feed {
+  border-color: var(--accent-danger);
+  box-shadow: inset 0 0 20px rgba(255, 0, 60, 0.2);
+}
+
+/* Settings Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(8, 3, 18, 0.8);
+  backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.settings-modal {
+  background: var(--panel-bg);
+  border: 1px solid var(--border-glow);
+  border-radius: 12px;
+  width: 400px;
+  padding: 25px;
+  box-shadow: 0 0 30px rgba(110, 0, 255, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  position: relative;
+}
+
+.settings-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border-glow);
+  padding-bottom: 10px;
+}
+
+.settings-title {
+  font-family: 'Share Tech Mono', monospace;
+  color: var(--accent-primary);
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.close-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+.close-btn:hover {
+  color: var(--accent-danger);
+}
+
+.settings-content {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.setting-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+}
+
+.system-info {
+  background: var(--glass);
+  padding: 10px;
+  border-radius: 6px;
+  border-left: 2px solid var(--accent-primary);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 12px;
+  color: var(--text-dim);
+  line-height: 1.5;
+}

@@ -22,6 +22,13 @@ function App() {
   const [aiAnalysis, setAiAnalysis] = useState(null);
   const [status, setStatus] = useState('SECURE');
   const [isFullscreen, setIsFullscreen] = useState(false);
+  
+  // New Control States
+  const [isLockdown, setIsLockdown] = useState(false);
+  const [isSilentMode, setIsSilentMode] = useState(false);
+  const [isThermalView, setIsThermalView] = useState(false);
+  const [isMotionTracking, setIsMotionTracking] = useState(true);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   useEffect(() => {
     const handleFullscreenChange = () => {
@@ -36,16 +43,22 @@ function App() {
 
     socket.on('anomaly_detected', (data) => {
       setIsAnomaly(true);
-      setStatus('THREAT DETECTED');
+      if (!isLockdown) {
+        setStatus('THREAT DETECTED');
+      }
       addLog({ type: 'threat', message: data.message, timestamp: data.timestamp });
       
-      // Audible warning
-      speakWarning("Avertissement. Activité suspecte détectée. Les autorités ont été prévenues.");
+      // Audible warning if not silent
+      if (!isSilentMode) {
+        speakWarning("Avertissement. Activité suspecte détectée. Les autorités ont été prévenues.");
+      }
 
       // Auto reset anomaly visual after 3 seconds
       setTimeout(() => {
         setIsAnomaly(false);
-        setStatus('MONITORING');
+        if (!isLockdown) {
+          setStatus('MONITORING');
+        }
       }, 3000);
     });
 
@@ -74,6 +87,24 @@ function App() {
     }
   };
 
+  const toggleLockdown = () => {
+    const newState = !isLockdown;
+    setIsLockdown(newState);
+    setStatus(newState ? 'LOCKDOWN' : 'SECURE');
+    addLog({ 
+      type: newState ? 'threat' : 'info', 
+      message: newState ? 'EMERGENCY LOCKDOWN INITIATED' : 'LOCKDOWN LIFTED. SYSTEM SECURE.' 
+    });
+    if (newState && !isSilentMode) {
+      speakWarning("Alerte rouge. Confinement du système initié.");
+    }
+  };
+
+  const toggleSilentMode = () => {
+    setIsSilentMode(!isSilentMode);
+    addLog({ type: 'info', message: !isSilentMode ? 'Silent Mode Engaged.' : 'Audio Restored.' });
+  };
+
   const addLog = (log) => {
     setLogs(prev => [{
       id: Date.now(),
@@ -87,7 +118,7 @@ function App() {
   };
 
   return (
-    <div className={`app-container ${isAnomaly ? 'alert-active' : ''}`}>
+    <div className={`app-container ${isAnomaly ? 'alert-active' : ''} ${isLockdown ? 'lockdown-active' : ''}`}>
       <header>
         <div className="logo-container">
           <Shield className="logo-icon" size={32} />
@@ -125,12 +156,17 @@ function App() {
           <button className="btn-cyber" onClick={toggleFullScreen} title="Plein écran">
             {isFullscreen ? <Minimize size={16} /> : <Maximize size={16} />}
           </button>
-          <button className="btn-cyber"><Settings size={16} /></button>
+          <button className="btn-cyber" onClick={() => setIsSettingsOpen(true)}><Settings size={16} /></button>
         </div>
       </header>
 
       <main className="main-feed">
-        <CameraFeed onFrame={handleFrame} isAnomaly={isAnomaly} />
+        <CameraFeed 
+          onFrame={handleFrame} 
+          isAnomaly={isAnomaly || isLockdown} 
+          isThermalView={isThermalView}
+          isMotionTracking={isMotionTracking}
+        />
         <div className="feed-overlay" />
         
         <AnimatePresence>
@@ -172,10 +208,30 @@ function App() {
             System Control
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-            <button className="btn-cyber">Lockdown</button>
-            <button className="btn-cyber">Silent Mode</button>
-            <button className="btn-cyber">Thermal View</button>
-            <button className="btn-cyber">Motion Tracking</button>
+            <button 
+              className={`btn-cyber ${isLockdown ? 'danger-active' : ''}`} 
+              onClick={toggleLockdown}
+            >
+              Lockdown
+            </button>
+            <button 
+              className={`btn-cyber ${isSilentMode ? 'active' : ''}`} 
+              onClick={toggleSilentMode}
+            >
+              Silent Mode
+            </button>
+            <button 
+              className={`btn-cyber ${isThermalView ? 'active' : ''}`} 
+              onClick={() => setIsThermalView(!isThermalView)}
+            >
+              Thermal View
+            </button>
+            <button 
+              className={`btn-cyber ${isMotionTracking ? 'active' : ''}`} 
+              onClick={() => setIsMotionTracking(!isMotionTracking)}
+            >
+              Motion Tracking
+            </button>
           </div>
         </div>
         
@@ -184,6 +240,48 @@ function App() {
           Developed by ratovoarisoaricardo.
         </div>
       </aside>
+
+      <AnimatePresence>
+        {isSettingsOpen && (
+          <motion.div 
+            className="modal-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.div 
+              className="settings-modal"
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+            >
+              <div className="settings-header">
+                <div className="settings-title"><Settings size={18} /> System Settings</div>
+                <button className="close-btn" onClick={() => setIsSettingsOpen(false)}>X</button>
+              </div>
+              
+              <div className="settings-content">
+                <div className="system-info">
+                  <strong>SENTINEL KERNEL v2.4.0</strong><br/>
+                  UI Frame: React/Framer<br/>
+                  AI Engine: MediaPipe/Gemini 1.5<br/>
+                  Connection: WebSockets Active
+                </div>
+                
+                <div className="setting-row">
+                  <span>Clear Log History</span>
+                  <button className="btn-cyber" onClick={() => { setLogs([]); addLog({type: 'info', message: 'Logs cleared.'}) }}>Execute</button>
+                </div>
+                
+                <div className="setting-row">
+                  <span>Force Re-sync AI</span>
+                  <button className="btn-cyber" onClick={() => window.location.reload()}>Reboot</button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <style>{`
         .pulse-dot {
