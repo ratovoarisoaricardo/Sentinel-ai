@@ -113,8 +113,8 @@ function App() {
     }, ...prev].slice(0, 50));
   };
 
-  const handleFrame = (image) => {
-    socket.emit('process_frame', { image });
+  const handleAnomaly = (image) => {
+    socket.emit('trigger_anomaly', { image });
   };
 
   return (
@@ -162,7 +162,7 @@ function App() {
 
       <main className="main-feed">
         <CameraFeed 
-          onFrame={handleFrame} 
+          onAnomaly={handleAnomaly} 
           isAnomaly={isAnomaly || isLockdown} 
           isThermalView={isThermalView}
           isMotionTracking={isMotionTracking}

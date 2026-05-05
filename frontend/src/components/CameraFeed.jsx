@@ -4,10 +4,21 @@ const Camera = window.Camera;
 const drawConnectors = window.drawConnectors;
 const drawLandmarks = window.drawLandmarks;
 
-const CameraFeed = ({ onFrame, isAnomaly, isThermalView, isMotionTracking }) => {
+const CameraFeed = ({ onAnomaly, isAnomaly, isThermalView, isMotionTracking }) => {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const lastEmitTime = useRef(0);
+  
+  // Use refs for props to avoid recreating the camera/pose on every render
+  const onAnomalyRef = useRef(onAnomaly);
+  const isAnomalyRef = useRef(isAnomaly);
+  const isMotionTrackingRef = useRef(isMotionTracking);
+
+  useEffect(() => {
+    onAnomalyRef.current = onAnomaly;
+    isAnomalyRef.current = isAnomaly;
+    isMotionTrackingRef.current = isMotionTracking;
+  }, [onAnomaly, isAnomaly, isMotionTracking]);
 
   useEffect(() => {
     const pose = new Pose({
@@ -30,7 +41,7 @@ const CameraFeed = ({ onFrame, isAnomaly, isThermalView, isMotionTracking }) => 
       canvasCtx.drawImage(results.image, 0, 0, canvasRef.current.width, canvasRef.current.height);
 
       // Draw skeleton if motion tracking is enabled
-      if (isMotionTracking && results.poseLandmarks) {
+      if (isMotionTrackingRef.current && results.poseLandmarks) {
         drawConnectors(canvasCtx, results.poseLandmarks, [
           [11, 12], [11, 13], [13, 15], [12, 14], [14, 16], [11, 23], [12, 24], [23, 24]
         ], { color: '#bf00ff', lineWidth: 2 });
@@ -42,7 +53,7 @@ const CameraFeed = ({ onFrame, isAnomaly, isThermalView, isMotionTracking }) => 
       canvasCtx.fillStyle = '#bf00ff';
       canvasCtx.fillText('SCANNING FOR ANOMALIES...', 20, 30);
       
-      if (isAnomaly) {
+      if (isAnomalyRef.current) {
         canvasCtx.strokeStyle = '#ff003c';
         canvasCtx.lineWidth = 4;
         canvasCtx.strokeRect(10, 10, canvasRef.current.width - 20, canvasRef.current.height - 20);
@@ -50,12 +61,24 @@ const CameraFeed = ({ onFrame, isAnomaly, isThermalView, isMotionTracking }) => 
 
       canvasCtx.restore();
 
-      // Emit frame to backend for AI analysis (limit to 2 FPS to avoid flooding)
-      const now = Date.now();
-      if (now - lastEmitTime.current > 500) {
-        const frame = canvasRef.current.toDataURL('image/jpeg', 0.5);
-        onFrame(frame);
-        lastEmitTime.current = now;
+      // Anomaly Detection (Frontend)
+      if (results.poseLandmarks) {
+        const nose = results.poseLandmarks[0];
+        const leftWrist = results.poseLandmarks[15];
+        const rightWrist = results.poseLandmarks[16];
+        
+        // If wrists are above nose level (hands up)
+        if (leftWrist && rightWrist && nose) {
+          if (leftWrist.y < nose.y || rightWrist.y < nose.y) {
+            const now = Date.now();
+            // 5 second cooldown to avoid spamming the AI
+            if (now - lastEmitTime.current > 5000) {
+              const frame = canvasRef.current.toDataURL('image/jpeg', 0.5);
+              if (onAnomalyRef.current) onAnomalyRef.current(frame);
+              lastEmitTime.current = now;
+            }
+          }
+        }
       }
     });
 
@@ -72,7 +95,7 @@ const CameraFeed = ({ onFrame, isAnomaly, isThermalView, isMotionTracking }) => 
       camera.stop();
       pose.close();
     };
-  }, [onFrame, isAnomaly]);
+  }, []); // Empty dependency array is critical to avoid restarting the camera
 
   return (
     <div style={{ position: 'relative', width: '100%', height: '100%', backgroundColor: '#000' }}>

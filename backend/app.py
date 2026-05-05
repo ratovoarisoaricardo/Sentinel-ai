@@ -1,5 +1,4 @@
-import cv2
-import mediapipe as mp
+
 import base64
 import time
 import threading
@@ -19,10 +18,7 @@ app = Flask(__name__)
 CORS(app)
 socketio = SocketIO(app, cors_allowed_origins="*", async_mode='threading')
 
-# Initialize MediaPipe Pose
-from mediapipe.python.solutions import pose as mp_pose
-from mediapipe.python.solutions import drawing_utils as mp_drawing
-pose = mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5)
+
 
 # Gemini Configuration
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
@@ -64,41 +60,22 @@ def index():
 def handle_connect():
     print('Client connected')
 
-@socketio.on('process_frame')
-def handle_process_frame(data):
-    """Process a frame sent from the frontend"""
+@socketio.on('trigger_anomaly')
+def handle_trigger_anomaly(data):
+    """Handle an anomaly triggered by the frontend"""
     try:
         # Decode base64 image
         header, encoded = data['image'].split(",", 1)
         image_data = base64.b64decode(encoded)
         
-        # Convert to OpenCV format
-        nparr = cv2.imdecode(cv2.frombuffer(image_data, cv2.uint8), cv2.IMREAD_COLOR)
+        timestamp = time.strftime("%H:%M:%S")
+        emit('anomaly_detected', {'timestamp': timestamp, 'message': 'Suspect posture detected.'}, broadcast=True)
         
-        # Analyze with MediaPipe
-        image_rgb = cv2.cvtColor(nparr, cv2.COLOR_BGR2RGB)
-        results = pose.process(image_rgb)
-        
-        # Basic anomaly detection logic (example: hands up)
-        is_anomaly = False
-        if results.pose_landmarks:
-            landmarks = results.pose_landmarks.landmark
-            nose = landmarks[mp_pose.PoseLandmark.NOSE.value]
-            left_wrist = landmarks[mp_pose.PoseLandmark.LEFT_WRIST.value]
-            right_wrist = landmarks[mp_pose.PoseLandmark.RIGHT_WRIST.value]
-            
-            if left_wrist.y < nose.y or right_wrist.y < nose.y:
-                is_anomaly = True
-                
-        if is_anomaly:
-            timestamp = time.strftime("%H:%M:%S")
-            emit('anomaly_detected', {'timestamp': timestamp, 'message': 'Suspect posture detected.'})
-            
-            # Trigger AI Analysis in background
-            threading.Thread(target=run_ai_analysis, args=(image_data, timestamp)).start()
+        # Trigger AI Analysis in background
+        threading.Thread(target=run_ai_analysis, args=(image_data, timestamp)).start()
             
     except Exception as e:
-        print(f"Error processing frame: {e}")
+        print(f"Error handling anomaly: {e}")
 
 def run_ai_analysis(image_bytes, timestamp):
     """Run Gemini Vision analysis on the captured frame"""
