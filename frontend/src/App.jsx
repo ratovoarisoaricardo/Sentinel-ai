@@ -156,6 +156,11 @@ function App() {
             <button className="btn-cyber">Motion Tracking</button>
           </div>
         </div>
+        
+        <div style={{ textAlign: 'center', fontSize: '10px', color: 'var(--text-dim)', marginTop: 'auto', paddingTop: '10px', fontFamily: '"Share Tech Mono", monospace', opacity: 0.7 }}>
+          &copy; {new Date().getFullYear()} Sentinel-AI. All rights reserved.<br/>
+          Developed by ratovoarisoaricardo.
+        </div>
       </aside>
 
       <style>{`
