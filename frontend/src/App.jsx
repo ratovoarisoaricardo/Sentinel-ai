@@ -32,6 +32,14 @@ function App() {
   const [isSurveillanceActive, setIsSurveillanceActive] = useState(true);
   const [isSystemOnline, setIsSystemOnline] = useState(true);
 
+  const addLog = (log) => {
+    setLogs(prev => [{
+      id: Date.now() + Math.random(),
+      timestamp: new Date().toLocaleTimeString(),
+      ...log
+    }, ...prev].slice(0, 50));
+  };
+
   useEffect(() => {
     const handleFullscreenChange = () => {
       setIsFullscreen(!!document.fullscreenElement);
@@ -107,13 +115,7 @@ function App() {
     addLog({ type: 'info', message: !isSilentMode ? 'Silent Mode Engaged.' : 'Audio Restored.' });
   };
 
-  const addLog = (log) => {
-    setLogs(prev => [{
-      id: Date.now() + Math.random(),
-      timestamp: new Date().toLocaleTimeString(),
-      ...log
-    }, ...prev].slice(0, 50));
-  };
+
 
   const handleAnomaly = (image) => {
     socket.emit('trigger_anomaly', { image });
