@@ -22,6 +22,7 @@ function App() {
   const [aiAnalysis, setAiAnalysis] = useState(null);
   const [status, setStatus] = useState('SECURE');
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [selectedLog, setSelectedLog] = useState(null);
   
   // New Control States
   const [isLockdown, setIsLockdown] = useState(false);
@@ -246,7 +247,7 @@ function App() {
       </main>
 
       <aside className="side-panel">
-        <AnalysisPanel logs={logs} aiAnalysis={aiAnalysis} />
+        <AnalysisPanel logs={logs} aiAnalysis={aiAnalysis} onLogClick={(log) => setSelectedLog(log)} />
         
         <div className="panel-card" style={{ flexShrink: 0 }}>
           <div className="panel-title">
@@ -326,6 +327,76 @@ function App() {
                 <div className="setting-row">
                   <span>Force Re-sync AI</span>
                   <button className="btn-cyber" onClick={() => window.location.reload()}>Reboot</button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+
+        {selectedLog && (
+          <motion.div 
+            className="modal-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.div 
+              className="settings-modal"
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              style={{ maxWidth: '500px' }}
+            >
+              <div className="settings-header" style={{ borderBottomColor: selectedLog.type === 'threat' ? 'var(--accent-danger)' : 'var(--accent-primary)' }}>
+                <div className="settings-title" style={{ color: selectedLog.type === 'threat' ? 'var(--accent-danger)' : 'var(--accent-primary)' }}>
+                  <Terminal size={18} /> Log Details
+                </div>
+                <button className="close-btn" onClick={() => setSelectedLog(null)}>X</button>
+              </div>
+              
+              <div className="settings-content" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                <div style={{ background: 'var(--bg-dark)', padding: '15px', borderRadius: '4px', border: `1px solid ${selectedLog.type === 'threat' ? 'var(--accent-danger)' : 'var(--border-glow)'}` }}>
+                  <div style={{ color: 'var(--text-dim)', fontSize: '11px', marginBottom: '8px' }}>
+                    TIMESTAMP: {selectedLog.timestamp} | TYPE: {selectedLog.type.toUpperCase()}
+                  </div>
+                  <div style={{ fontSize: '14px', lineHeight: '1.5', color: selectedLog.type === 'threat' ? '#ffccd5' : '#fff' }}>
+                    {selectedLog.message}
+                  </div>
+                </div>
+
+                <div>
+                  <h4 style={{ margin: '0 0 10px 0', fontSize: '12px', color: 'var(--text-dim)', textTransform: 'uppercase' }}>Recommended Actions</h4>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    
+                    {selectedLog.type === 'threat' && (
+                      <>
+                        {!isLockdown && (
+                          <button className="btn-cyber danger" onClick={() => { toggleLockdown(); setSelectedLog(null); }}>
+                            <Lock size={14} /> Engage Lockdown
+                          </button>
+                        )}
+                        {!isSilentMode && (
+                          <button className="btn-cyber" onClick={() => { toggleSilentMode(); setSelectedLog(null); }}>
+                            <VolumeX size={14} /> Enable Silent Mode
+                          </button>
+                        )}
+                      </>
+                    )}
+
+                    {(selectedLog.type === 'ai' || (selectedLog.type === 'info' && selectedLog.message.includes('404'))) && (
+                      <button className="btn-cyber" onClick={() => { window.location.reload(); }}>
+                        <Power size={14} /> Reboot System Core
+                      </button>
+                    )}
+
+                    <button className="btn-cyber" onClick={() => { setLogs(prev => prev.filter(l => l.id !== selectedLog.id)); setSelectedLog(null); }} style={{ opacity: 0.8 }}>
+                       Delete This Log
+                    </button>
+                    <button className="btn-cyber" onClick={() => setSelectedLog(null)} style={{ opacity: 0.6, borderStyle: 'dashed' }}>
+                       Dismiss
+                    </button>
+
+                  </div>
                 </div>
               </div>
             </motion.div>

@@ -2,7 +2,7 @@ import React from 'react';
 import { Activity, Database, AlertCircle, Cpu } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const AnalysisPanel = ({ logs, aiAnalysis }) => {
+const AnalysisPanel = ({ logs, aiAnalysis, onLogClick }) => {
   return (
     <>
       <div className="panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '15px', flexShrink: 0 }}>
@@ -41,7 +41,11 @@ const AnalysisPanel = ({ logs, aiAnalysis }) => {
         </div>
         <div className="logs-container" style={{ flex: 1, overflowY: 'auto', minHeight: '150px', maxHeight: '300px' }}>
           {logs.map(log => (
-            <div key={log.id} className={`log-item ${log.type === 'threat' ? 'threat' : ''}`}>
+            <div 
+              key={log.id} 
+              className={`log-item ${log.type === 'threat' ? 'threat' : ''}`}
+              onClick={() => onLogClick && onLogClick(log)}
+            >
               <div className="timestamp">[{log.timestamp}] {log.type.toUpperCase()}</div>
               <div>{log.message}</div>
             </div>
