@@ -27,7 +27,9 @@ TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 
 if GEMINI_API_KEY:
     genai.configure(api_key=GEMINI_API_KEY)
-    model = genai.GenerativeModel('gemini-1.5-flash')
+    # Use gemini-1.5-pro or fallback to gemini-pro-vision
+    model_name = 'gemini-1.5-pro'
+    model = genai.GenerativeModel(model_name)
 else:
     print("Warning: GEMINI_API_KEY not found in environment variables.")
     model = None
@@ -87,7 +89,14 @@ def run_ai_analysis(image_bytes, timestamp):
     try:
         img = Image.open(io.BytesIO(image_bytes))
         prompt = "This is a security camera snapshot. Analyze the scene for threats, suspicious behavior, or anomalies. Be concise. If there is a clear threat, start with [HIGH THREAT]."
-        response = model.generate_content([prompt, img])
+        
+        try:
+            response = model.generate_content([prompt, img])
+        except Exception as e:
+            print(f"gemini-1.5-pro failed: {e}. Falling back to gemini-pro-vision.")
+            fallback_model = genai.GenerativeModel('gemini-pro-vision')
+            response = fallback_model.generate_content([prompt, img])
+
         analysis = response.text
         
         socketio.emit('ai_analysis', {'timestamp': timestamp, 'analysis': analysis})

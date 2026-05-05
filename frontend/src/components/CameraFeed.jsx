@@ -4,7 +4,7 @@ const Camera = window.Camera;
 const drawConnectors = window.drawConnectors;
 const drawLandmarks = window.drawLandmarks;
 
-const CameraFeed = ({ onAnomaly, isAnomaly, isThermalView, isMotionTracking }) => {
+const CameraFeed = ({ onAnomaly, isAnomaly, isThermalView, isMotionTracking, isSurveillanceActive }) => {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const lastEmitTime = useRef(0);
@@ -13,12 +13,14 @@ const CameraFeed = ({ onAnomaly, isAnomaly, isThermalView, isMotionTracking }) =
   const onAnomalyRef = useRef(onAnomaly);
   const isAnomalyRef = useRef(isAnomaly);
   const isMotionTrackingRef = useRef(isMotionTracking);
+  const isSurveillanceActiveRef = useRef(isSurveillanceActive);
 
   useEffect(() => {
     onAnomalyRef.current = onAnomaly;
     isAnomalyRef.current = isAnomaly;
     isMotionTrackingRef.current = isMotionTracking;
-  }, [onAnomaly, isAnomaly, isMotionTracking]);
+    isSurveillanceActiveRef.current = isSurveillanceActive;
+  }, [onAnomaly, isAnomaly, isMotionTracking, isSurveillanceActive]);
 
   useEffect(() => {
     const pose = new Pose({
@@ -62,7 +64,7 @@ const CameraFeed = ({ onAnomaly, isAnomaly, isThermalView, isMotionTracking }) =
       canvasCtx.restore();
 
       // Anomaly Detection (Frontend)
-      if (results.poseLandmarks) {
+      if (isSurveillanceActiveRef.current && results.poseLandmarks) {
         const nose = results.poseLandmarks[0];
         const leftWrist = results.poseLandmarks[15];
         const rightWrist = results.poseLandmarks[16];

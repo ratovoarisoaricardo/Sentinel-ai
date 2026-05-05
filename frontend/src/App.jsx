@@ -29,6 +29,8 @@ function App() {
   const [isThermalView, setIsThermalView] = useState(false);
   const [isMotionTracking, setIsMotionTracking] = useState(true);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isSurveillanceActive, setIsSurveillanceActive] = useState(true);
+  const [isSystemOnline, setIsSystemOnline] = useState(true);
 
   useEffect(() => {
     const handleFullscreenChange = () => {
@@ -107,7 +109,7 @@ function App() {
 
   const addLog = (log) => {
     setLogs(prev => [{
-      id: Date.now(),
+      id: Date.now() + Math.random(),
       timestamp: new Date().toLocaleTimeString(),
       ...log
     }, ...prev].slice(0, 50));
@@ -116,6 +118,25 @@ function App() {
   const handleAnomaly = (image) => {
     socket.emit('trigger_anomaly', { image });
   };
+
+  if (!isSystemOnline) {
+    return (
+      <div className="app-container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', background: '#000', color: 'var(--accent-danger)' }}>
+        <ShieldAlert size={80} style={{ opacity: 0.5, marginBottom: '20px' }} />
+        <h1 style={{ fontFamily: 'Share Tech Mono', letterSpacing: '4px' }}>SYSTEM OFFLINE</h1>
+        <p style={{ color: 'var(--text-dim)', marginBottom: '30px' }}>Sentinel-AI core processes have been terminated.</p>
+        <button 
+          className="btn-cyber" 
+          onClick={() => {
+            setIsSystemOnline(true);
+            setLogs([]);
+          }}
+        >
+          REBOOT CORE SYSTEM
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className={`app-container ${isAnomaly ? 'alert-active' : ''} ${isLockdown ? 'lockdown-active' : ''}`}>
@@ -166,6 +187,7 @@ function App() {
           isAnomaly={isAnomaly || isLockdown} 
           isThermalView={isThermalView}
           isMotionTracking={isMotionTracking}
+          isSurveillanceActive={isSurveillanceActive}
         />
         <div className="feed-overlay" />
         
@@ -231,6 +253,24 @@ function App() {
               onClick={() => setIsMotionTracking(!isMotionTracking)}
             >
               Motion Tracking
+            </button>
+            <button 
+              className={`btn-cyber ${isSurveillanceActive ? 'active' : 'danger'}`} 
+              onClick={() => {
+                setIsSurveillanceActive(!isSurveillanceActive);
+                addLog({ type: 'info', message: !isSurveillanceActive ? 'AI Surveillance Re-engaged' : 'AI Surveillance Paused' });
+              }}
+            >
+              {isSurveillanceActive ? 'AI Monitor: ON' : 'AI Monitor: OFF'}
+            </button>
+            <button 
+              className="btn-cyber danger" 
+              onClick={() => {
+                setIsSystemOnline(false);
+                addLog({ type: 'threat', message: 'SYSTEM CORE SHUTDOWN INITIATED' });
+              }}
+            >
+              Shutdown System
             </button>
           </div>
         </div>
