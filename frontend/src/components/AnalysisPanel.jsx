@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 const AnalysisPanel = ({ logs, aiAnalysis }) => {
   return (
     <>
-      <div className="panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+      <div className="panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '15px', flexShrink: 0 }}>
         <div className="panel-title">
           <Cpu size={16} />
           AI Neural Insight
@@ -34,7 +34,7 @@ const AnalysisPanel = ({ logs, aiAnalysis }) => {
         </div>
       </div>
 
-      <div className="panel-card" style={{ flex: 2, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+      <div className="panel-card" style={{ flex: 2, display: 'flex', flexDirection: 'column', overflow: 'hidden', flexShrink: 0, minHeight: '250px' }}>
         <div className="panel-title">
           <Database size={16} />
           System Logs
