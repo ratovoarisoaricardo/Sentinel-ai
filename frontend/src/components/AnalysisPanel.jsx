@@ -18,7 +18,8 @@ const AnalysisPanel = ({ logs, aiAnalysis, onLogClick }) => {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
-                style={{ fontSize: '13px', lineHeight: '1.6', color: '#e6edf3' }}
+                style={{ color: '#e6edf3' }}
+                className="text-readable"
               >
                 <div style={{ color: 'var(--accent-primary)', marginBottom: '5px', fontSize: '11px', fontWeight: 'bold' }}>
                   LATEST ANALYSIS [{aiAnalysis.timestamp}]

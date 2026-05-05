@@ -209,6 +209,13 @@ header {
   to { transform: translateX(0); opacity: 1; }
 }
 
+.text-readable {
+  font-family: 'Outfit', sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  letter-spacing: 0.3px;
+}
+
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;

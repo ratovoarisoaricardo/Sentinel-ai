@@ -359,7 +359,7 @@ function App() {
                   <div style={{ color: 'var(--text-dim)', fontSize: '11px', marginBottom: '8px' }}>
                     TIMESTAMP: {selectedLog.timestamp} | TYPE: {selectedLog.type.toUpperCase()}
                   </div>
-                  <div style={{ fontSize: '14px', lineHeight: '1.5', color: selectedLog.type === 'threat' ? '#ffccd5' : '#fff' }}>
+                  <div className="text-readable" style={{ color: selectedLog.type === 'threat' ? '#ffccd5' : '#fff' }}>
                     {selectedLog.message}
                   </div>
                 </div>
