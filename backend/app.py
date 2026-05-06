@@ -1,3 +1,5 @@
+import eventlet
+eventlet.monkey_patch()
 
 import base64
 import time
@@ -17,7 +19,7 @@ load_dotenv()
 
 app = Flask(__name__)
 CORS(app)
-socketio = SocketIO(app, cors_allowed_origins="*", async_mode='threading')
+socketio = SocketIO(app, cors_allowed_origins="*")
 
 
 
@@ -112,8 +114,13 @@ def run_ai_analysis(image_bytes, timestamp):
             send_telegram_alert(f"🚨 SENTINEL AI ALERT\nTimestamp: {timestamp}\nAnalysis: {analysis}", image_bytes)
             
     except Exception as e:
-        print(f"AI Analysis error: {e}")
-        socketio.emit('ai_analysis', {'timestamp': timestamp, 'analysis': f"Error during analysis: {str(e)}"})
+        error_msg = str(e)
+        if "429" in error_msg or "RESOURCE_EXHAUSTED" in error_msg:
+            print("AI Rate limit hit. Sending throttling message.")
+            socketio.emit('ai_analysis', {'timestamp': timestamp, 'analysis': "[SYSTEM THROTTLED]: AI Analysis temporarily suspended due to rate limits. Local tracking remains active."})
+        else:
+            print(f"AI Analysis error: {e}")
+            socketio.emit('ai_analysis', {'timestamp': timestamp, 'analysis': f"Error during analysis: {error_msg}"})
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     print(f"SentinelAI Backend starting on port {port}...")

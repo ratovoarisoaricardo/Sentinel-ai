@@ -72,6 +72,7 @@ header {
   letter-spacing: 2px;
   background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
@@ -311,10 +312,6 @@ header {
   object-fit: cover;
   border: 2px solid var(--accent-primary);
   box-shadow: 0 0 30px var(--accent-primary);
-}
-
-.ai-core-avatar.booting {
-  /* No longer used for the main boot screen, kept for fallback */
 }
 
 .ai-core-avatar.offline {

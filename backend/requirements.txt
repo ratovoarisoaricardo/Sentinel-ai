@@ -3,7 +3,7 @@ flask-socketio
 flask-cors
 opencv-python
 mediapipe
-google-generativeai
+google-genai
 python-dotenv
 Pillow
 requests
