@@ -87,24 +87,77 @@ const CameraFeed = ({ onAnomaly, isAnomaly, isThermalView, isMotionTracking, isS
       }
     });
 
-    console.log('Initializing Camera...');
-    const camera = new Camera(videoRef.current, {
-      onFrame: async () => {
-        // console.log('Frame received'); // Too spammy, but useful for initial check
-        await pose.send({ image: videoRef.current });
-      },
-      width: 1280,
-      height: 720,
-    });
-    
-    camera.start().then(() => {
-      console.log('Camera started successfully');
-    }).catch(err => {
-      console.error('Failed to start camera:', err);
-    });
+    const startCamera = async (deviceId = null) => {
+      try {
+        console.log('Attempting to start camera with deviceId:', deviceId || 'Default');
+        const constraints = {
+          video: deviceId ? { 
+            deviceId: deviceId,
+            width: { ideal: 1280 },
+            height: { ideal: 720 }
+          } : {
+            width: { ideal: 1280 },
+            height: { ideal: 720 }
+          }
+        };
+
+        const stream = await navigator.mediaDevices.getUserMedia(constraints);
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+          await videoRef.current.play(); // Ensure playback starts
+          
+          let isProcessing = false;
+          const processFrame = async () => {
+            if (videoRef.current && videoRef.current.readyState >= 2 && !isProcessing) {
+              isProcessing = true;
+              try {
+                await pose.send({ image: videoRef.current });
+              } catch (e) {
+                console.error("Pose processing error:", e);
+              } finally {
+                isProcessing = false;
+              }
+            }
+            if (videoRef.current && videoRef.current.srcObject) {
+              requestAnimationFrame(processFrame);
+            }
+          };
+          requestAnimationFrame(processFrame);
+          console.log('Camera stream started successfully.');
+        }
+      } catch (err) {
+        console.error('Error starting camera:', err);
+        if (deviceId) {
+          console.warn('Preferred camera failed. Falling back to default...');
+          startCamera(null); 
+        }
+      }
+    };
+
+    const initializeSystem = async () => {
+      try {
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const videoDevices = devices.filter(device => device.kind === 'videoinput');
+        
+        let targetDevice = videoDevices.find(d => {
+          const label = d.label.toLowerCase();
+          return (label.includes('integrated') || label.includes('built-in') || label.includes('facetime')) && !label.includes('droidcam');
+        });
+
+        if (!targetDevice) {
+          targetDevice = videoDevices.find(d => !d.label.toLowerCase().includes('droidcam'));
+        }
+
+        await startCamera(targetDevice ? targetDevice.deviceId : null);
+      } catch (err) {
+        console.error('System initialization error:', err);
+        startCamera(null);
+      }
+    };
+
+    initializeSystem();
 
     return () => {
-      camera.stop();
       pose.close();
       if (videoRef.current && videoRef.current.srcObject) {
         videoRef.current.srcObject.getTracks().forEach(track => track.stop());
